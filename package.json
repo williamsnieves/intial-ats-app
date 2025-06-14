@@ -1,0 +1,26 @@
+{
+  "name": "lti-ats-app",
+  "version": "1.0.0",
+  "description": "Lead Talent Intelligence - Applicant Tracking System",
+  "private": true,
+  "workspaces": [
+    "packages/backend",
+    "packages/frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=packages/backend",
+    "dev:frontend": "npm run start --workspace=packages/frontend",
+    "build": "npm run build --workspaces",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:build": "docker compose up --build",
+    "setup": "npm install && npm run docker:up && npm run db:migrate",
+    "db:migrate": "npm run db:migrate --workspace=packages/backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "author": "LTI Team",
+  "license": "MIT"
+}

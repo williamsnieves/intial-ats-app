@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Candidate {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  firstName   String
+  lastName    String
+  phone       String?
+  resumeUrl   String?
+  linkedinUrl String?
+  skills      String[] // Array of skills
+  experience  Int      // Years of experience
+  location    String?
+  salary      Int?     // Expected salary
+  status      CandidateStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  applications Application[]
+
+  @@map("candidates")
+}
+
+model JobPosting {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  company     String
+  location    String
+  salaryMin   Int?
+  salaryMax   Int?
+  requirements String[] // Array of requirements
+  benefits    String[] // Array of benefits
+  type        JobType  @default(FULL_TIME)
+  remote      Boolean  @default(false)
+  status      JobStatus @default(OPEN)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  applications Application[]
+
+  @@map("job_postings")
+}
+
+model Application {
+  id          String   @id @default(cuid())
+  candidateId String
+  jobPostingId String
+  status      ApplicationStatus @default(SUBMITTED)
+  coverLetter String?
+  appliedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  candidate   Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  jobPosting  JobPosting  @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+
+  @@map("applications")
+  @@unique([candidateId, jobPostingId])
+}
+
+enum CandidateStatus {
+  ACTIVE
+  INACTIVE
+  BLACKLISTED
+}
+
+enum JobStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  CANCELLED
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  FREELANCE
+  INTERNSHIP
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  INTERVIEW_SCHEDULED
+  INTERVIEWED
+  OFFERED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+} 
